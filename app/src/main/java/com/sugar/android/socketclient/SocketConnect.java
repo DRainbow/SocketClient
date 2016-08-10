@@ -56,7 +56,7 @@ public class SocketConnect {
         try {
 //            mClient = new LocalSocket();
 //            mClient.connect(new LocalSocketAddress(SOCKET_ADDRESS));
-            mClient = new Socket("127.0.0.1", 10010);
+            mClient = new Socket("10.10.200.78", 10010);
             mClient.setSoTimeout(timeout);
 
 //            mOut = mClient.getOutputStream();
@@ -109,29 +109,36 @@ public class SocketConnect {
         return true;
     }
 
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
+
     public boolean send(Request request) {
         try {
-            ObjectInputStream ois = new ObjectInputStream(mClient.getInputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(mClient.getOutputStream());
+            if (ois == null) {
+                ois = new ObjectInputStream(mClient.getInputStream());
+            }
+            if (oos == null) {
+                oos = new ObjectOutputStream(mClient.getOutputStream());
+            }
 
-//            oos.writeObject(request);
+            oos.writeObject(request);
+            oos.writeObject(request);
 //            oos.flush();
 //            oos.writeObject(null);
 
-            Response res = null;
-            try {
-                res = (Response) ois.readObject();
-                Log.d(TAG, "Current Response is:\n" + JSON.toJSONString(res));
-                ois.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            oos.close();
-            ois.close();
-            mClient.close();
+//            Response res = null;
+//            try {
+//                res = (Response) ois.readObject();
+//                Log.d(TAG, "Current Response is:\n" + JSON.toJSONString(res));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+//            oos.close();
+//            ois.close();
+//            mClient.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -160,7 +167,6 @@ public class SocketConnect {
 //        }
 //        return result;
 //    }
-
     public Response receive() {
         Response res = null;
         try {
