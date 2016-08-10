@@ -1,9 +1,14 @@
 package com.sugar.android.socketclient;
 
+import android.util.Log;
+
+import com.alibaba.fastjson.JSON;
 import com.sugar.android.socket.model.Request;
+import com.sugar.android.socket.model.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -44,18 +49,18 @@ public class SocketConnect {
      */
     public boolean connect() {
 
-        if (mClient != null) {
+        if (mClient != null && mClient.isConnected()) {
             return true;
         }
 
         try {
 //            mClient = new LocalSocket();
 //            mClient.connect(new LocalSocketAddress(SOCKET_ADDRESS));
-            mClient = new Socket("10.10.200.78", 10010);
+            mClient = new Socket("127.0.0.1", 10010);
             mClient.setSoTimeout(timeout);
 
-            mIn = mClient.getInputStream();
-            mOut = mClient.getOutputStream();
+//            mOut = mClient.getOutputStream();
+//            mIn = mClient.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
             disconnect();
@@ -106,9 +111,28 @@ public class SocketConnect {
 
     public boolean send(Request request) {
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(mOut);
-            oos.writeObject(request);
-            oos.writeObject(null);
+            ObjectInputStream ois = new ObjectInputStream(mClient.getInputStream());
+            ObjectOutputStream oos = new ObjectOutputStream(mClient.getOutputStream());
+
+//            oos.writeObject(request);
+//            oos.flush();
+//            oos.writeObject(null);
+
+            Response res = null;
+            try {
+                res = (Response) ois.readObject();
+                Log.d(TAG, "Current Response is:\n" + JSON.toJSONString(res));
+                ois.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            oos.close();
+            ois.close();
+            mClient.close();
+
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -121,19 +145,34 @@ public class SocketConnect {
      *
      * @return
      */
-    public String receive() {
-        String result = null;
+//    public String receive() {
+//        String result = null;
+//
+//        try {
+//            byte[] buffer = new byte[2048];
+//            int readBytes = 0;
+//            StringBuilder stringBuilder = new StringBuilder();
+//            while ((readBytes = mIn.read(buffer)) > 0) {
+//                stringBuilder.append(new String(buffer, 0, readBytes));
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return result;
+//    }
 
+    public Response receive() {
+        Response res = null;
         try {
-            byte[] buffer = new byte[2048];
-            int readBytes = 0;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((readBytes = mIn.read(buffer)) > 0) {
-                stringBuilder.append(new String(buffer, 0, readBytes));
-            }
+            ObjectInputStream ois = new ObjectInputStream(mIn);
+            res = (Response) ois.readObject();
+            Log.d(TAG, "Current Response is:\n" + JSON.toJSONString(res));
+            ois.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-        return result;
+        return res;
     }
 }

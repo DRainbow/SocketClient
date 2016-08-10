@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import com.android.sugar.localsocketclient.R;
 import com.sugar.android.socket.model.Request;
 import com.sugar.android.socket.model.User;
 
@@ -61,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (isConnected) {
                     Log.d(TAG, "Local Socket connected");
                     SocketConnect.getInstance().send(request);
-                    SocketConnect.getInstance().disconnect();
+//                    SocketConnect.getInstance().receive();
+//                    SocketConnect.getInstance().disconnect();
                 } else {
                     Log.d(TAG, "Local Socket disconnected");
                 }
