@@ -1,4 +1,4 @@
-package com.sugar.android.socket.model;
+package com.sugar.android.socket.businessmodel;
 
 import java.io.Serializable;
 
